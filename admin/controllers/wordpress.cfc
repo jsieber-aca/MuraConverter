@@ -12,6 +12,11 @@
 		<cfset var content = "" />
 		<cfset var allParentsFound = false />
 		<cfset var categoryList = "" />
+        <!--- Added this variable so that content can be imported into a blog portal instead of directely under the "home" section of the site. Eventually it would be nice to add a select input to the view file default.cfm so that the end user can select what contentID they would like the imported pages to appear under. --->
+        <!--- <cfset var contentID = "0B7D5375-0E3D-9F3F-DD84497227F81A98" /> ACA Site--->
+        <cfset var contentID = "23E58CCE-D236-481C-8F6B8CA975124C82" /> <!--- Test Site --->
+        <!--- Use this if imported posts should be inserted into the root of the site. --->
+		<!--- <cfset var contentID = "00000000000000000000000000000000001" /> root of test site ---> 
 		
 		<cfif not directoryExists(importDirectory)>
 			<cfset directoryCreate(importDirectory) />
@@ -23,14 +28,16 @@
 		<cffile action="read" file="#importDirectory##newFilename#" variable="rawXML" >
 		
 		<cfset wpXML = xmlParse(rawXML) />
+        
+		<cfdump var="#wpXML#" abort="true">
 		
-		<cfloop condition="allParentsFound eq false">
+        <cfloop condition="allParentsFound eq false">
 			<cfset allParentsFound = true />
 			<cfloop array="#wpXML.rss.channel.item#" index="item">
 				<cfscript>
 					if(item["wp:post_type"].xmlText == "post" && len(item["title"].xmlText)) {
 						if(item["wp:post_parent"].xmlText eq 0) {
-							parentContent = rc.$.getBean("content").loadBy(contentID="00000000000000000000000000000000001");
+							parentContent = rc.$.getBean("content").loadBy(contentID="#contentID#");
 						} else {
 							parentContent = rc.$.getBean("content").loadBy(remoteID=item["wp:post_parent"].xmlText);
 						}
@@ -44,6 +51,7 @@
 							content.setBody(item["content:encoded"].xmlText);
 							content.setRemoteID(item["wp:post_id"].xmlText);
 							content.setApproved(1);
+							content.setReleaseDate(item["pubDate"].xmlText);
 							content.setSiteID(rc.$.event('siteID'));
 							
 							categoryList = "";
@@ -61,6 +69,8 @@
 							content.setCategories(categoryList);
 							
 							content.save();	
+									
+							}
 						}
 					}
 				</cfscript>
