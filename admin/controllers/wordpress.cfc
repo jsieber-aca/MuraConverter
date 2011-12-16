@@ -43,7 +43,10 @@
 		
 		<cfset wpXML = xmlParse(rawXML) />
         
-		<!---<cfdump var="#wpXML.rss.channel.item["wp:comment"]["wp:comment_author"].xmlText#" abort="true">
+        
+        <!---<cfset comments = arraylen(#wpXML.rss.channel.item["wp:comment"]#) />
+        <cfoutput>#comments#</cfoutput>
+		<cfdump var="#wpXML.rss.channel.item#" abort="true">
         <cfdump var="#wpXML#" abort="true">--->
         
 		
@@ -85,16 +88,21 @@
 							content.setCategories(categoryList);
 							
 							
-							comment = rc.$.getBean("comment").loadBy(remoteID=item["wp:post_id"].xmlText);
-							comment.setContentID(content.getContentID());
-							comment.setName(item["wp:comment"]["wp:comment_author"].xmlText);
-							comment.setComments(item["wp:comment"]["wp:comment_content"].xmlText);
-							comment.setEntered(item["wp:comment"]["wp:comment_date"].xmlText);
-							comment.setUrl(item["wp:comment"]["wp:comment_author_url"].xmlText);
-							comment.setIsApproved(1);
-							comment.setSiteID(rc.$.event('siteID'));
+							}
+							for(var i=1; i<=arrayLen(item["wp:comment"]); i++) {
+								var comment = rc.$.getBean("comment").loadBy(comments="#item["wp:comment"]["wp:comment_content"].xmlText#");
+								if(comment.getIsNew()) {
+									comment = rc.$.getBean("comment").loadBy(remoteID=item["wp:post_id"].xmlText);
+									comment.setContentID(content.getContentID());
+									comment.setName(item["wp:comment"]["wp:comment_author"].xmlText);
+									comment.setComments(item["wp:comment"]["wp:comment_content"].xmlText);
+									comment.setEntered(item["wp:comment"]["wp:comment_date"].xmlText);
+									comment.setUrl(item["wp:comment"]["wp:comment_author_url"].xmlText);
+									comment.setIsApproved(1);
+									comment.setSiteID(rc.$.event('siteID'));
 							
-							comment.save();
+									comment.save();	
+									}	
 							 
 							content.save();	
 									
