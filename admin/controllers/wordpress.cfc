@@ -12,6 +12,20 @@
 		<cfset var content = "" />
 		<cfset var allParentsFound = false />
 		<cfset var categoryList = "" />
+		<!--- added this as the remoteAddr is needed in the request scope to be able to save comments and it does not appear to be picking this up from config\appcfc\onRequestStart_include.cfm --->
+        <cfset remoteIPHeader=application.configBean.getValue("remoteIPHeader")>
+		<cfif len(remoteIPHeader)>
+            <cftry>
+                <cfif StructKeyExists(GetHttpRequestData().headers, remoteIPHeader)>
+                    <cfset request.remoteAddr = GetHttpRequestData().headers[remoteIPHeader]>
+                <cfelse>
+                    <cfset request.remoteAddr = CGI.REMOTE_ADDR>
+                </cfif>
+                <cfcatch type="any"><cfset request.remoteAddr = CGI.REMOTE_ADDR></cfcatch>
+            </cftry>
+        <cfelse>
+            <cfset request.remoteAddr = CGI.REMOTE_ADDR>
+        </cfif>
         <!--- Added this variable so that content can be imported into a blog portal instead of directely under the "home" section of the site. Eventually it would be nice to add a select input to the view file default.cfm so that the end user can select what contentID they would like the imported pages to appear under. --->
         <!--- <cfset var contentID = "0B7D5375-0E3D-9F3F-DD84497227F81A98" /> ACA Site--->
         <cfset var contentID = "23E58CCE-D236-481C-8F6B8CA975124C82" /> <!--- Test Site --->
@@ -29,7 +43,9 @@
 		
 		<cfset wpXML = xmlParse(rawXML) />
         
-		<cfdump var="#wpXML#" abort="true">
+		<!---<cfdump var="#wpXML.rss.channel.item["wp:comment"]["wp:comment_author"].xmlText#" abort="true">
+        <cfdump var="#wpXML#" abort="true">--->
+        
 		
         <cfloop condition="allParentsFound eq false">
 			<cfset allParentsFound = true />
@@ -68,9 +84,20 @@
 							
 							content.setCategories(categoryList);
 							
+							
+							comment = rc.$.getBean("comment").loadBy(remoteID=item["wp:post_id"].xmlText);
+							comment.setContentID(content.getContentID());
+							comment.setName(item["wp:comment"]["wp:comment_author"].xmlText);
+							comment.setComments(item["wp:comment"]["wp:comment_content"].xmlText);
+							comment.setEntered(item["wp:comment"]["wp:comment_date"].xmlText);
+							comment.setUrl(item["wp:comment"]["wp:comment_author_url"].xmlText);
+							comment.setIsApproved(1);
+							comment.setSiteID(rc.$.event('siteID'));
+							
+							comment.save();
+							 
 							content.save();	
 									
-							}
 						}
 					}
 				</cfscript>
