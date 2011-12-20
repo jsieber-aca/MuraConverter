@@ -8,8 +8,8 @@
 		        <input type="file" name="wordpressXML" id="wordpressXML" />
             </li>
             <li>
-            	<label for="contentID">ContentID</label>
-                <input type="text" name="contentID" id="contentID" />
+            	<label for="parentContentID">Parent ContentID</label>
+                <input type="text" name="parentContentID" id="parentContentID" />
             </li>
             <li>
             	<button type="submit">Upload</button>

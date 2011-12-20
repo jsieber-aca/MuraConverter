@@ -25,7 +25,7 @@
 		<cffile action="read" file="#importDirectory##newFilename#" variable="rawXML" >
 		
 		<cfset wpXML = xmlParse(rawXML) />
-		
+		<!---<cfdump var="#wpXML#" abort="true">--->
 		<cfloop condition="allParentsFound eq false">
 			<cfset allParentsFound = true />
 			<cfloop array="#wpXML.rss.channel.item#" index="item">
@@ -74,6 +74,9 @@
 							// Set the category list into the content
 							content.setCategories(categoryList);
 							
+							
+							// Check to see if this wp node has any comments
+							if(structKeyExists(item, "wp:comment")) {
 							// Loop over the comments that were assigned to this wp node
 							for(var i=1; i<=arrayLen(item["wp:comment"]); i++) {
 								
@@ -100,6 +103,7 @@
 									
 									// Save the comment
 									comment.save();	
+									}
 								}	
 							}
 							
