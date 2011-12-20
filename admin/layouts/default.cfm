@@ -33,7 +33,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 				<ul>
 					<li class="first<cfif rc.mcAction eq 'admin:main.default'> active</cfif>"><a href="#buildURL('admin:main')#">Home</a></li>
 					<li class="last<cfif rc.mcAction eq 'admin:wordpress.default'> active</cfif>"><a href="#buildURL('admin:wordpress')#">Wordpress</a></li>
-                    <li class="last<cfif rc.mcAction eq 'admin:blogger.default'> active</cfif>"><a href="#buildURL('admin:blogger')#">Blogger</a></li>
 					<li<cfif rc.mcAction eq 'admin:license.default'> class="active"</cfif>><a href="#buildURL('admin:license')#">License</a></li>
 				</ul>
 			</div>
